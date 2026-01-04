@@ -11,7 +11,7 @@ X-SysLock is a security tool for Zorin OS and Ubuntu-based systems to enable har
 ## Quick Installation (One-Liner)
 Open your terminal and run:
 
-```wget -qO- https://raw.githubusercontent.com/albertuszerk/yubicosyslock/main/yubikey-master-setup.sh | bash```
+```bash <(wget -qO- https://raw.githubusercontent.com/albertuszerk/yubicosyslock/main/yubikey-master-setup.sh)```
 
 ## Understanding YubiKey PINs
 When X-SysLock asks for a PIN during registration, it refers to the **FIDO2 PIN**. 
