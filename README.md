@@ -34,7 +34,7 @@ X-SysLock basiert auf dem `apt` Paketmanager und ist optimiert fuer:
 
 Oeffnen Sie Ihr Terminal und geben Sie folgenden Befehl ein:
 
-```bash <(wget -qO- [https://raw.githubusercontent.com/albertuszerk/yubicosyslock/main/yubikey-master-setup.sh](https://raw.githubusercontent.com/albertuszerk/yubicosyslock/main/yubikey-master-setup.sh))```
+```bash <(wget -qO- https://raw.githubusercontent.com/albertuszerk/yubicosyslock/main/yubikey-master-setup.sh)```
 
 
 ## 📸 Screenshots & Preview
