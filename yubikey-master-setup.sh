@@ -86,8 +86,9 @@ EOF
 # --- GUI Control Script ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
+# X-SysLock GUI Version 1.0
 CHOICE=\$(zenity --list --width=500 --height=400 \\
-    --title="X-SysLock - Management" \\
+    --title="X-SysLock Management - Version 1.0" \\
     --column="Aktion" --column="Beschreibung" \\
     "Aktivieren" "Hardware-Login einschalten (Passwort + Key)" \\
     "Editieren" "YubiKey Manager (PINs & Defaults verwalten)" \\
@@ -98,7 +99,7 @@ case \$CHOICE in
     "Aktivieren") gnome-terminal --wait -- "$SCRIPT_DIR/yubi-setup.sh" ;;
     "Editieren") ykman-gui ;;
     "Deinstallieren") 
-        if zenity --question --text="Moechten Sie X-SysLock wirklich komplett entfernen?"; then
+        if zenity --question --text="Moechten Sie X-SysLock v1.0 wirklich komplett entfernen?"; then
             gnome-terminal --wait -- "$SCRIPT_DIR/yubi-uninstall.sh"
             rm "$APP_DIR/yubikey-manager.desktop"
             zenity --info --text="Deinstallation abgeschlossen."
