@@ -2,6 +2,7 @@
 
 # Project: X-SysLock, login for Linux (YubiKey 5 Series)
 # Repository: https://github.com/albertuszerk/yubicosyslock
+# Version: 1.0
 # License: CC BY-NC-SA 4.0
 
 BLUE='\033[0;34m'
@@ -14,7 +15,7 @@ clear
 echo -e "${BLUE}=== X-SysLock Installer v1.0 ===${NC}"
 echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
 echo ""
-read -p "Moechten Sie die Installation von X-SysLock jetzt starten? (j/n): " confirm
+read -p "Moechten Sie die Installation von X-SysLock v1.0 jetzt starten? (j/n): " confirm
 if [[ ! $confirm =~ ^[Jj]$ ]]; then
     echo "Installation abgebrochen."
     exit 1
@@ -37,7 +38,7 @@ echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 clear
-echo -e "\033[0;34m=== YubiKey REGISTRIERUNG ===\033[0m"
+echo -e "\033[0;34m=== YubiKey REGISTRIERUNG (X-SysLock v1.0) ===\033[0m"
 echo ""
 echo "WICHTIGE PIN-INFORMATION:"
 echo "Wenn Sie nach einer PIN gefragt werden, ist dies die FIDO2-PIN."
@@ -63,7 +64,7 @@ for FILE in "${PAM_FILES[@]}"; do
     fi
 done
 echo ""
-echo "ERFOLG: X-SysLock ist nun fuer Login und Sudo aktiv."; sleep 4
+echo "ERFOLG: X-SysLock v1.0 ist nun aktiv."; sleep 4
 EOF
 
 # --- Uninstall Script ---
@@ -86,7 +87,6 @@ EOF
 # --- GUI Control Script ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
-# X-SysLock GUI Version 1.0
 CHOICE=\$(zenity --list --width=500 --height=400 \\
     --title="X-SysLock Management - Version 1.0" \\
     --column="Aktion" --column="Beschreibung" \\
@@ -127,4 +127,4 @@ chmod +x "$APP_DIR/yubikey-manager.desktop"
 update-desktop-database "$APP_DIR"
 echo ""
 echo -e "${GREEN}=== INSTALLATION ERFOLGREICH! ===${NC}"
-echo "Sie finden 'X-SysLock' jetzt in Ihrem Menue unter Systemwerkzeuge."
+echo "X-SysLock v1.0 ist nun einsatzbereit."
