@@ -39,15 +39,18 @@ Oeffnen Sie Ihr Terminal und geben Sie folgenden Befehl ein:
 
 ## 📸 Screenshots & Preview
 Hier sehen Sie X-SysLock im Einsatz:
+<p align="center">
+  <img src="images/screen1.jpg" width="45%" alt="Starten"> 
+  <img src="images/screen2.jpg" width="45%" alt="Installieren">
+  <img src="images/screen1.jpg" width="45%" alt="Icon"> 
+  <img src="images/screen2.jpg" width="45%" alt="Management Konsole">
+</p>
 
 <p align="center">
-  <img src="images/screen1.jpg" width="45%" alt="Main Menu"> 
-  <img src="images/screen2.jpg" width="45%" alt="Registration">
-</p>
-<p align="center">
-  <img src="images/screen3.jpg" width="45%" alt="PIN Info">
-  <img src="images/screen4.jpg" width="45%" alt="Success">
-  <img src="images/screen5.jpg" width="45%" alt="Yubikey Manager">
+  <img src="images/screen1.jpg" width="45%" alt="Key registrieren"> 
+  <img src="images/screen2.jpg" width="45%" alt="FIDO2 PIN">
+  <img src="images/screen1.jpg" width="45%" alt="System Bereinigung"> 
+  <img src="images/screen2.jpg" width="45%" alt="Deinstallation">
 </p>
 
 ---
