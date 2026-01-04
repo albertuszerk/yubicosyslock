@@ -41,13 +41,13 @@ Oeffnen Sie Ihr Terminal und geben Sie folgenden Befehl ein:
 Hier sehen Sie X-SysLock im Einsatz:
 
 <p align="center">
-  <img src="images/screen1.png" width="45%" alt="Main Menu"> 
-  <img src="images/screen2.png" width="45%" alt="Registration">
+  <img src="images/screen1.jpg" width="45%" alt="Main Menu"> 
+  <img src="images/screen2.jpg" width="45%" alt="Registration">
 </p>
 <p align="center">
-  <img src="images/screen3.png" width="30%" alt="PIN Info">
-  <img src="images/screen4.png" width="30%" alt="Success">
-  <img src="images/screen5.png" width="30%" alt="Yubikey Manager">
+  <img src="images/screen3.jpg" width="45%" alt="PIN Info">
+  <img src="images/screen4.jpg" width="45%" alt="Success">
+  <img src="images/screen5.jpg" width="45%" alt="Yubikey Manager">
 </p>
 
 ---
