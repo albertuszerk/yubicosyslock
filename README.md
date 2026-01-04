@@ -67,4 +67,4 @@ X-SysLock kann sauber ueber das eigene GUI-Menue entfernt werden. Es stellt die 
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
 ## Tags
-#XSysLock #YubiKey #LinuxSecurity #ZorinOS #CyberSecurity #2FA #ParentalControl #ChildSafety #FamilyProtection #SafeLogin #ComputerAccessControl #DigitalParenting #ScreenTimeSecurity #HomeNetworkSecurity #SecureParenting #HardwareSecurity #LinuxLogin #FIDO2 #ZweiFaktorAuthentifizierung #HardwareToken #SudoSecurity #OpenSource #Ubuntu #albertuszerk #yubicosyslock
+#xsyslock #yubikey #linuxsecurity #zorinos #cybersecurity #2fa #parentalcontrol #parental-control #childsafety #child-safety #familyprotection #family-protection #safelogin #safe-login #computeraccesscontrol #digitalparenting #digital-parenting #screentimesecurity #screen-time-management #homenetworksecurity #secureparenting #hardwaresecurity #linuxlogin #fido2 #zweifaktorauthentifizierung #hardwaretoken #sudosecurity #opensource #ubuntu #albertuszerk #yubicosyslock #access-control #kids-safety #cyber-safety #family-tech #protective-parenting #pc-lockdown #secure-access #internet-safety
