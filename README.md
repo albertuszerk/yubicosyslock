@@ -2,7 +2,7 @@
   <img src="images/banner.png" alt="X-SysLock Banner" width="100%">
 </p>
 
-X-SysLock ist ein Sicherheits-Tool fuer Zorin OS und Ubuntu-basierte Systeme, um eine Hardware-basierte Zwei-Faktor-Authentifizierung (2FA) fuer den System-Login und Sudo-Befehle zu aktivieren. 
+X-SysLock ist ein Sicherheits-Tool fuer Zorin OS und Ubuntu-basierte Systeme, um eine Hardware-basierte Zwei-Faktor-Authentifizierung (2FA) fuer den System-Login und Sudo-Befehle in wenigen Schritten zu aktivieren. 
 
 Dieses Tool wurde entwickelt, um den Login-Prozess physisch abzusichern – ideal fuer den Schutz von Familien-PCs (Parental Control) oder Arbeitsstationen.
 
@@ -56,7 +56,7 @@ Hier sehen Sie X-SysLock im Einsatz:
 ---
 
 ## Understanding YubiKey PINs
-Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-PIN** gemeint. Dies ist die PIN, die den Hardware-Login schuetzt.
+Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-PIN** gemeint (s. Bild 6). Dies ist die PIN, die den Hardware-Login schuetzt.
 
 ### Die 3 Standard-PINs eines YubiKeys:
 1. **FIDO2-PIN:** Wird fuer den System-Login genutzt (Standard: oft leer/nicht gesetzt).
