@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="images/banner.png" alt="X-SysLock Banner" width="100%">
+</p>
+
+# <img src="images/logo.png" width="32" height="32"> X-SysLock, login for Linux (YubiKey 5 Series)
+
 # X-SysLock, login for Linux (YubiKey 5 Series)
 
 X-SysLock is a security tool for Zorin OS and Ubuntu-based systems to enable hardware-based Two-Factor Authentication (2FA) for system login and sudo commands.
