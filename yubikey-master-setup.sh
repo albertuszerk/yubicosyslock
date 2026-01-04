@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Project: X-SysLock, login for Linux (YubiKey 5 Series)
-# Author: albertuszerk / yubicosyslock
+# Repository: https://github.com/albertuszerk/yubicosyslock
 # License: CC BY-NC-SA 4.0
 
 BLUE='\033[0;34m'
@@ -33,7 +33,7 @@ mkdir -p "$SCRIPT_DIR"
 # 2. Scripte schreiben
 echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 
-# --- Setup Script mit PIN-Erklärung ---
+# --- Setup Script mit PIN-Erklaerung ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 clear
