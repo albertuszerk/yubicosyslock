@@ -65,12 +65,15 @@ Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-
 
 ## FAQ
 **Funktionieren mehrere Admin/User Accounts auf einem Linux System, solange ein YubiKey aktiviert ist?**
+
 Nein. Mit einer Ausnahme - ist Auto-Logon aktiv, wird man automatisch in dieses Zweit-Profil als User(!) eingeloggt. Achtung - es gibt nur noch einen (YubiKey based) Admin Account auf dem System!
 
 **Ich kann mich als Admin nicht einloggen, mein Passwort sei ungültig - ich bin sicher, mein Passwort richtig eingegeben zu haben!**
+
 Ihr YubiKey steckt nicht im USB Slot oder kann vom NFC Leser nicht gelesen werden. Linux macht Sie nicht darauf aufmerksam, dass ein YubiKey fehlt. Schliessen Sie ihren YubiKey an.
 
 **Funktioniert meine Admin/User Profile, sobald ich X-SysLock deinstalliert habe?**
+
 Ja.
 
 ## Deinstallation
