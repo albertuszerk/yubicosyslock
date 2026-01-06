@@ -55,9 +55,10 @@ echo ""
 
 if [ -f "$KEY_FILE" ] && [ -s "$KEY_FILE" ]; then
     echo "Modus: Weiteren Backup-Key hinzufuegen..."
-    pamu2fcfg >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
+    # Sicherstellen, dass ein Trenner gesetzt wird, falls pamu2fcfg direkt anhaengt
+    printf ":" >> "$KEY_FILE"
+    pamu2fcfg -n >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
 else
-    # Punkt 2: Optimierte Formulierung fuer den ersten Key / Reset
     echo "Modus: Mit YubiKey anmelden / Ersten Key bestaetigen..."
     pamu2fcfg > "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
 fi
@@ -75,7 +76,7 @@ done
 echo "ERFOLG: Schluessel wurde registriert."; sleep 2
 EOF
 
-# --- Uninstall Script (Wiederherstellung der Backups) ---
+# --- Uninstall Script ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-uninstall.sh"
 #!/bin/bash
 PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
@@ -92,19 +93,19 @@ rm -rf "$HOME/.config/Yubico"
 echo "System bereinigt. X-SysLock wurde entfernt."; sleep 2
 EOF
 
-# --- GUI Control Script (Zenity mit Pango-Farben & Punkt 1 Anpassung) ---
+# --- GUI Control Script (Zenity mit korrigierter Zaehl-Logik) ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
 KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
 
 count_keys() {
-    [ -f "\$KEY_FILE" ] && grep -c '^' "\$KEY_FILE" || echo 0
+    # Korrektur: Zaehlt Doppelpunkte statt Zeilen fuer maximale Praezision
+    [ -f "\$KEY_FILE" ] && grep -o ":" "\$KEY_FILE" | wc -l || echo 0
 }
 
 while true; do
     NUM=\$(count_keys)
     
-    # Punkt 1 & Design: Farbliche Status-Meldungen
     if [ \$NUM -eq 0 ]; then
         STATUS="<span color='red'><b>KRITISCH: Kein Schluessel registriert!</b></span>"
     elif [ \$NUM -eq 1 ]; then
