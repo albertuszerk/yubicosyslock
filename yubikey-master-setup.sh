@@ -1,5 +1,5 @@
 #!/bin/bash
-# Project: X-SysLock v1.1 (Final Pro Version - Fixed)
+# Project: X-SysLock v1.1 (Final Pro Version - Hotfix)
 # Repository: https://github.com/albertuszerk/yubicosyslock
 # Version: 1.1
 # License: CC BY-NC-SA 4.0
@@ -13,7 +13,7 @@ NC='\033[0m'
 clear
 echo -e "${BLUE}=== X-SysLock Installer v1.1 ===${NC}"
 echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
-echo "v1.1 Feature: Korrekte Multi-Key Zaehlung & visuelle Status-Anzeige."
+echo "v1.1 Hotfix: Fehlerbehebung bei Sonderzeichen & Schluessel-Zaehlung."
 echo ""
 read -p "Moechten Sie die Installation von X-SysLock v1.1 jetzt starten? (j/n): " confirm
 if [[ ! $confirm =~ ^[Jj]$ ]]; then
@@ -35,7 +35,7 @@ mkdir -p "$HOME/.config/Yubico"
 # 2. Scripte schreiben
 echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 
-# --- Setup Script (Optimierte Schreib-Logik fuer eine Zeile) ---
+# --- Setup Script (Verbesserte Schreib-Logik ohne SED) ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 KEY_FILE="$HOME/.config/Yubico/u2f_keys"
@@ -53,17 +53,20 @@ echo ""
 
 if [ -f "$KEY_FILE" ] && [ -s "$KEY_FILE" ]; then
     echo "Modus: Weiteren Backup-Key hinzufuegen..."
-    # Wir holen nur die Key-Daten (ohne Username) und fuegen sie mit ":" an die Zeile an
-    NEW_KEY=$(pamu2fcfg -n | tr -d '\n')
+    # Sonderzeichen-sicheres Auslesen des neuen Keys
+    NEW_KEY=$(pamu2fcfg -n | tr -d '\n' | tr -d '\r')
     if [ ! -z "$NEW_KEY" ]; then
-        sed -i "s/$/:$NEW_KEY/" "$KEY_FILE"
-        echo "Erfolg: Backup-Key zur bestehenden Zeile hinzugefuegt."
+        # Wir lesen den alten Inhalt, entfernen Zeilenumbrueche und haengen :KEY an
+        OLD_CONTENT=$(cat "$KEY_FILE" | tr -d '\n' | tr -d '\r')
+        echo -n "${OLD_CONTENT}:${NEW_KEY}" > "$KEY_FILE"
+        echo "" >> "$KEY_FILE"
+        echo "Erfolg: Backup-Key zur bestehenden Konfiguration hinzugefuegt."
     else
-        echo "Fehler bei der Registrierung!"; sleep 3; exit 1
+        echo "Fehler: Es wurden keine Key-Daten empfangen!"; sleep 3; exit 1
     fi
 else
     echo "Modus: Mit YubiKey anmelden / Ersten Key bestaetigen..."
-    pamu2fcfg | tr -d '\n' > "$KEY_FILE"
+    pamu2fcfg | tr -d '\n' | tr -d '\r' > "$KEY_FILE"
     echo "" >> "$KEY_FILE"
 fi
 
@@ -77,7 +80,7 @@ for FILE in "${PAM_FILES[@]}"; do
         sudo sed -i '/@include common-auth/a auth required pam_u2f.so cue' "$FILE"
     fi
 done
-echo "ERFOLG: Schluessel wurde registriert."; sleep 2
+echo "Abgeschlossen."; sleep 2
 EOF
 
 # --- Uninstall Script ---
@@ -97,13 +100,13 @@ rm -rf "$HOME/.config/Yubico"
 echo "System bereinigt. X-SysLock wurde entfernt."; sleep 2
 EOF
 
-# --- GUI Control Script (Korrigierte Zaehl-Logik via Doppelpunkt) ---
+# --- GUI Control Script (Zaehl-Logik via Doppelpunkt-Analyse) ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
 KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
 
 count_keys() {
-    # Zaehlt die Doppelpunkte in der Datei (1 ":" = 1 Key)
+    # Zaehlt die Doppelpunkte (:). 1 Key = 1 ":", 2 Keys = 2 ":"
     if [ -f "\$KEY_FILE" ]; then
         grep -o ":" "\$KEY_FILE" | wc -l
     else
