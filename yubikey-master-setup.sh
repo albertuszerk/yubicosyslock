@@ -1,5 +1,5 @@
 #!/bin/bash
-# Project: X-SysLock v1.1 (Final Pro Version)
+# Project: X-SysLock v1.1 (Final Pro Version - Fixed)
 # Repository: https://github.com/albertuszerk/yubicosyslock
 # Version: 1.1
 # License: CC BY-NC-SA 4.0
@@ -13,7 +13,6 @@ NC='\033[0m'
 clear
 echo -e "${BLUE}=== X-SysLock Installer v1.1 ===${NC}"
 echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
-echo "v1.1 Feature: Unterstuetzung fuer mehrere Schluessel & visuelle Status-Anzeige."
 echo ""
 read -p "Moechten Sie die Installation von X-SysLock v1.1 jetzt starten? (j/n): " confirm
 if [[ ! $confirm =~ ^[Jj]$ ]]; then
@@ -35,7 +34,7 @@ mkdir -p "$HOME/.config/Yubico"
 # 2. Scripte schreiben
 echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 
-# --- Setup Script (Registrierungs-Logik) ---
+# --- Setup Script (Optimierte Schreib-Logik) ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 KEY_FILE="$HOME/.config/Yubico/u2f_keys"
@@ -44,20 +43,17 @@ mkdir -p "$HOME/.config/Yubico"
 clear
 echo -e "\033[0;34m=== YubiKey BESTAETIGUNG (X-SysLock v1.1) ===\033[0m"
 echo ""
-echo "WICHTIG: Wenn Sie nach einer PIN gefragt werden, ist dies die FIDO2-PIN."
-echo ""
-echo "Die 3 Standard-PINs eines YubiKeys:"
+echo "Hintergrund - Die 3 Standard-PINs eines YubiKeys:"
 echo "1. FIDO2-PIN: (Standard: leer). Schuetzt den Login."
 echo "2. PIV-PIN:   (Standard: 123456). Fuer Zertifikate."
 echo "3. Admin-PIN: (Standard: 12345678). Hardware-Verwaltung."
 echo "-------------------------------------------------------"
 echo ""
 
+# Wir nutzen nun immer das Standard-Format (eine Zeile pro Key)
 if [ -f "$KEY_FILE" ] && [ -s "$KEY_FILE" ]; then
     echo "Modus: Weiteren Backup-Key hinzufuegen..."
-    # Sicherstellen, dass ein Trenner gesetzt wird, falls pamu2fcfg direkt anhaengt
-    printf ":" >> "$KEY_FILE"
-    pamu2fcfg -n >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
+    pamu2fcfg >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
 else
     echo "Modus: Mit YubiKey anmelden / Ersten Key bestaetigen..."
     pamu2fcfg > "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
@@ -65,7 +61,7 @@ fi
 
 chmod 600 "$KEY_FILE"
 
-# PAM-Integration mit Backup-Schutz (Original bleibt erhalten)
+# PAM-Integration mit Backup-Schutz
 PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
 for FILE in "${PAM_FILES[@]}"; do
     if [ -f "$FILE" ] && ! sudo grep -q "pam_u2f.so" "$FILE"; then
@@ -93,14 +89,18 @@ rm -rf "$HOME/.config/Yubico"
 echo "System bereinigt. X-SysLock wurde entfernt."; sleep 2
 EOF
 
-# --- GUI Control Script (Zenity mit korrigierter Zaehl-Logik) ---
+# --- GUI Control Script (Korrigierte Zaehl-Logik) ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
 KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
 
 count_keys() {
-    # Korrektur: Zaehlt Doppelpunkte statt Zeilen fuer maximale Praezision
-    [ -f "\$KEY_FILE" ] && grep -o ":" "\$KEY_FILE" | wc -l || echo 0
+    # Zaehlt nun einfach die Zeilen, da jeder Key eine eigene Zeile hat
+    if [ -f "\$KEY_FILE" ]; then
+        grep -c ":" "\$KEY_FILE"
+    else
+        echo 0
+    fi
 }
 
 while true; do
@@ -133,7 +133,7 @@ while true; do
             fi ;;
         "Editieren") ykman-gui ;;
         "Deinstallieren")
-            if zenity --question --text="X-SysLock komplett entfernen und System-Originalzustand wiederherstellen?"; then
+            if zenity --question --text="X-SysLock komplett entfernen?"; then
                 gnome-terminal --wait -- "$SCRIPT_DIR/yubi-uninstall.sh"
                 rm "$APP_DIR/yubikey-manager.desktop"
                 break
