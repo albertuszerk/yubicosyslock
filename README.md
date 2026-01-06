@@ -57,7 +57,7 @@ Hier sehen Sie X-SysLock im Einsatz:
 
 ---
 
-## Understanding YubiKey PINs
+## YubiKey PINs verstehen
 Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-PIN** gemeint (s. Bild 6). Dies ist die PIN, die den Hardware-Login schuetzt.
 
 ### Die 3 Standard-PINs eines YubiKeys:
@@ -67,7 +67,12 @@ Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-
 
 ## FAQ
 **Was mache ich, wenn ein Schluessel gestohlen wurde?**
-Loggen Sie sich mit Ihrem Backup-Key ein, oeffnen Sie den X-SysLock Manager und waehlen Sie "Kompletter Reset". Dadurch werden alle alten Keys (inklusive des gestohlenen) geloescht. Registrieren Sie danach Ihre vorhandenen Keys neu.
+Kurzform: Loggen Sie sich mit Ihrem Backup-Key ein, oeffnen Sie den X-SysLock Manager und waehlen Sie "Kompletter Reset". Dadurch werden alle alten Keys (inklusive des gestohlenen) geloescht. Registrieren Sie danach Ihre vorhandenen Keys neu.
+
+1. **Backup-Login:** Logge dich mit deinem Zweitschluessel ein.
+2. **Terminal-Absicherung:** Oeffne ein Terminal und tippe `sudo -v`. Solange dieses Terminal offen ist, behaeltst du meist fuer 15 Minuten Root-Rechte, selbst wenn du die Keys gerade bearbeitest.
+3. **Reset via Skript:** Starte das X-SysLock Menue und waehle Punkt 2 (Loeschen & Neu registrieren).
+4. **Der entscheidende Test:** Bevor du dich ausloggst, oeffne ein neues Terminal und tippe `sudo ls`. Wenn die Abfrage nach dem neuen Key kommt und funktioniert, bist du sicher.
 
 **Funktionieren mehrere Admin/User Accounts auf einem Linux System, solange ein YubiKey aktiviert ist?**
 Nein. Mit einer Ausnahme - ist Auto-Logon aktiv, wird man automatisch in dieses Zweit-Profil als User(!) eingeloggt. Achtung - es gibt nur noch einen (YubiKey based) Admin Account auf dem System!
