@@ -64,17 +64,11 @@ Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-
 3. **Admin-PIN:** Zur Hardware-Verwaltung (Standard: 12345678).
 
 ## FAQ
-**Funktionieren mehrere Admin/User Accounts auf einem Linux System, solange ein YubiKey aktiviert ist?**
+**Funktionieren mehrere Admin/User Accounts auf einem Linux System, solange ein YubiKey aktiviert ist?** - Nein. Mit einer Ausnahme - ist Auto-Logon aktiv, wird man automatisch in dieses Zweit-Profil als User(!) eingeloggt. Achtung - es gibt nur noch einen (YubiKey based) Admin Account auf dem System!
 
-Nein. Mit einer Ausnahme - ist Auto-Logon aktiv, wird man automatisch in dieses Zweit-Profil als User(!) eingeloggt. Achtung - es gibt nur noch einen (YubiKey based) Admin Account auf dem System!
+**Ich kann mich als Admin nicht einloggen, mein Passwort sei ungültig - ich bin sicher, mein Passwort richtig eingegeben zu haben!** - Ihr YubiKey steckt nicht im USB Slot oder kann vom NFC Leser nicht gelesen werden. Linux macht Sie nicht darauf aufmerksam, dass ein YubiKey fehlt. Schliessen Sie ihren YubiKey an.
 
-**Ich kann mich als Admin nicht einloggen, mein Passwort sei ungültig - ich bin sicher, mein Passwort richtig eingegeben zu haben!**
-
-Ihr YubiKey steckt nicht im USB Slot oder kann vom NFC Leser nicht gelesen werden. Linux macht Sie nicht darauf aufmerksam, dass ein YubiKey fehlt. Schliessen Sie ihren YubiKey an.
-
-**Funktioniert meine Admin/User Profile, sobald ich X-SysLock deinstalliert habe?**
-
-Ja.
+**Funktioniert meine Admin/User Profile, sobald ich X-SysLock deinstalliert habe?** - Ja.
 
 ## Deinstallation
 X-SysLock kann sauber ueber das eigene GUI-Menue entfernt werden. Es stellt die originalen PAM-Konfigurationen wieder her und loescht die Scripte sowie den Menue-Eintrag restlos.
@@ -83,4 +77,4 @@ X-SysLock kann sauber ueber das eigene GUI-Menue entfernt werden. Es stellt die 
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
 ## Tags
-#xsyslock #yubikey #linuxsecurity #zorinos #cybersecurity #2fa #parentalcontrol #parental-control #childsafety #child-safety #familyprotection #family-protection #safelogin #safe-login #computeraccesscontrol #digitalparenting #digital-parenting #screentimesecurity #screen-time-management #homenetworksecurity #secureparenting #hardwaresecurity #linuxlogin #fido2 #zweifaktorauthentifizierung #hardwaretoken #sudosecurity #opensource #ubuntu #albertuszerk #yubicosyslock #access-control #kids-safety #cyber-safety #family-tech #protective-parenting #pc-lockdown #secure-access #internet-safety
+#xsyslock #yubikey #linuxsecurity #zorinos #cybersecurity #2fa #parentalcontrol #parentalcontrol #childsafety #child-safety #familyprotection #family-protection #safelogin #safelogin #computeraccesscontrol #digitalparenting #digitalparenting #screentimesecurity #screen-time-management #homenetworksecurity #secureparenting #hardwaresecurity #linuxlogin #fido2 #zweifaktorauthentifizierung #hardwaretoken #sudosecurity #opensource #ubuntu #albertuszerk #yubicosyslock #accesscontrol #kidssafety #cybersafety #familytech #protectiveparenting #pclockdown #secureaccess #internetsafety
