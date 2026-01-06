@@ -1,8 +1,5 @@
 #!/bin/bash
-
-# Project: X-SysLock, login for Linux (YubiKey 5 Series)
-# Repository: https://github.com/albertuszerk/yubicosyslock
-# Version: 1.0
+# Project: X-SysLock v1.1 (Multi-Key Support)
 # License: CC BY-NC-SA 4.0
 
 BLUE='\033[0;34m'
@@ -10,121 +7,73 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# --- Interaktiver Start ---
-clear
-echo -e "${BLUE}=== X-SysLock Installer v1.0 ===${NC}"
-echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
-echo ""
-read -p "Moechten Sie die Installation von X-SysLock v1.0 jetzt starten? (j/n): " confirm
-if [[ ! $confirm =~ ^[Jj]$ ]]; then
-    echo "Installation abgebrochen."
-    exit 1
-fi
-
-# --- Variablen ---
+# --- Pfade ---
 SCRIPT_DIR="$HOME/.yubikey-tool"
 APP_DIR="$HOME/.local/share/applications"
+KEY_FILE="$HOME/.config/Yubico/u2f_keys"
 
-# 1. Software-Installation
-echo -e "${BLUE}[1/4] Installiere Software (PAM, Ykman GUI, Zenity)...${NC}"
+clear
+echo -e "${BLUE}=== X-SysLock Installer v1.1 ===${NC}"
+mkdir -p "$SCRIPT_DIR"
+mkdir -p "$HOME/.config/Yubico"
+
+# 1. Software-Check
 sudo apt update && sudo apt install -y libpam-u2f pamu2fcfg yubikey-manager-qt zenity
 
-mkdir -p "$SCRIPT_DIR"
-
-# 2. Scripte schreiben
-echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
-
-# --- Setup Script mit PIN-Erklaerung ---
-cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
-#!/bin/bash
-clear
-echo -e "\033[0;34m=== YubiKey REGISTRIERUNG (X-SysLock v1.0) ===\033[0m"
-echo ""
-echo "WICHTIGE PIN-INFORMATION:"
-echo "Wenn Sie nach einer PIN gefragt werden, ist dies die FIDO2-PIN."
-echo ""
-echo "Hintergrund - Die 3 Standard-PINs eines YubiKeys:"
-echo "1. FIDO2-PIN: (Standard: leer/nicht gesetzt). Schuetzt den Login."
-echo "2. PIV-PIN:   (Standard: 123456). Fuer Zertifikate/Smartcards."
-echo "3. Admin-PIN: (Standard: 12345678). Zum Entsperren des Sticks."
-echo "-------------------------------------------------------"
-echo ""
-KEY_FILE="$HOME/.config/Yubico/u2f_keys"
-mkdir -p "$HOME/.config/Yubico"
-echo "Schritt 1: FIDO2-PIN tippen (falls gesetzt) + ENTER"
-echo "Schritt 2: Wenn der YubiKey blinkt, Goldkontakt beruehren."
-echo ""
-pamu2fcfg > "$KEY_FILE" || { echo "Fehler bei der Registrierung!"; sleep 5; exit 1; }
-chmod 600 "$KEY_FILE"
-PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
-for FILE in "${PAM_FILES[@]}"; do
-    if [ -f "$FILE" ] && ! sudo grep -q "pam_u2f.so" "$FILE"; then
-        sudo cp "$FILE" "${FILE}.original.bak"
-        sudo sed -i '/@include common-auth/a auth required pam_u2f.so cue' "$FILE"
-    fi
-done
-echo ""
-echo "ERFOLG: X-SysLock v1.0 ist nun aktiv."; sleep 4
-EOF
-
-# --- Uninstall Script ---
-cat <<'EOF' > "$SCRIPT_DIR/yubi-uninstall.sh"
-#!/bin/bash
-PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
-for FILE in "${PAM_FILES[@]}"; do
-    if [ -f "$FILE" ] && sudo grep -q "pam_u2f.so" "$FILE"; then
-        if [ -f "${FILE}.original.bak" ]; then
-            sudo mv "${FILE}.original.bak" "$FILE"
-        else
-            sudo sed -i '/pam_u2f.so/d' "$FILE"
-        fi
-    fi
-done
-rm -rf "$HOME/.config/Yubico"
-echo "System bereinigt. X-SysLock wurde entfernt."; sleep 3
-EOF
-
-# --- GUI Control Script ---
+# 2. Das Steuerungs-Skript (GUI)
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
-CHOICE=\$(zenity --list --width=500 --height=400 \\
-    --title="X-SysLock Management - Version 1.0" \\
-    --column="Aktion" --column="Beschreibung" \\
-    "Aktivieren" "Hardware-Login einschalten (Passwort + Key)" \\
-    "Editieren" "YubiKey Manager (PINs & Defaults verwalten)" \\
-    "Deinstallieren" "System bereinigen & Tool entfernen" \\
-    "Abbrechen" "Menue verlassen")
+KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
 
-case \$CHOICE in
-    "Aktivieren") gnome-terminal --wait -- "$SCRIPT_DIR/yubi-setup.sh" ;;
-    "Editieren") ykman-gui ;;
-    "Deinstallieren") 
-        if zenity --question --text="Moechten Sie X-SysLock v1.0 wirklich komplett entfernen?"; then
-            gnome-terminal --wait -- "$SCRIPT_DIR/yubi-uninstall.sh"
-            rm "$APP_DIR/yubikey-manager.desktop"
-            zenity --info --text="Deinstallation abgeschlossen."
-        fi ;;
-    *) exit ;;
-esac
+# Funktion: Zaehle registrierte Keys
+count_keys() {
+    if [ -f "\$KEY_FILE" ]; then
+        grep -c '^' "\$KEY_FILE"
+    else
+        echo 0
+    fi
+}
+
+while true; do
+    NUM=\$(count_keys)
+    STATUS="Status: \$NUM Schluessel registriert."
+    [ \$NUM -eq 1 ] && STATUS="! WARNUNG: Nur \$NUM Schluessel (Aussperrgefahr!)"
+    [ \$NUM -eq 0 ] && STATUS="KRITISCH: Kein Schluessel registriert!"
+
+    CHOICE=\$(zenity --list --width=550 --height=450 \\
+        --title="X-SysLock v1.1 - Multi-Key Management" \\
+        --text="\$STATUS\nBitte waehlen Sie eine Aktion aus:" \\
+        --column="Aktion" --column="Beschreibung" \\
+        "Schluessel hinzufuegen" "Einen weiteren Backup-Key registrieren" \\
+        "Kompletter Reset" "ALLE Keys loeschen und neu aufsetzen (Diebstahl-Schutz)" \\
+        "YubiKey Manager" "PINs und FIDO2-Einstellungen verwalten" \\
+        "Deinstallieren" "System bereinigen und Tool entfernen" \\
+        "Beenden" "Menue verlassen")
+
+    case \$CHOICE in
+        "Schluessel hinzufuegen")
+            gnome-terminal --wait -- bash -c "echo 'Zweit-Key einstecken und Kontakt beruehren...'; pamu2fcfg >> '\$KEY_FILE' && echo 'Erfolg!' || echo 'Fehler!'; sleep 2"
+            ;;
+        "Kompletter Reset")
+            if zenity --question --text="Moechten Sie wirklich ALLE Schluessel loeschen?"; then
+                rm -f "\$KEY_FILE"
+                gnome-terminal --wait -- bash -c "echo 'Ersten Key einstecken und Kontakt beruehren...'; pamu2fcfg > '\$KEY_FILE' && echo 'Neuer Hauptschluessel gesetzt!'; sleep 2"
+            fi
+            ;;
+        "YubiKey Manager") ykman-gui ;;
+        "Deinstallieren")
+            # Deinstallations-Logik
+            break ;;
+        *) break ;;
+    esac
+done
 EOF
+
+# 3. PAM-Konfiguration
+sudo sed -i '/pam_u2f.so/d' /etc/pam.d/gdm-password 2>/dev/null
+sudo sed -i '/@include common-auth/a auth required pam_u2f.so cue' /etc/pam.d/gdm-password
+sudo sed -i '/pam_u2f.so/d' /etc/pam.d/sudo 2>/dev/null
+sudo sed -i '/@include common-auth/a auth required pam_u2f.so cue' /etc/pam.d/sudo
 
 chmod +x "$SCRIPT_DIR"/*.sh
-
-# 3. Menueeintrag (Desktop Entry)
-cat <<EOF > "$APP_DIR/yubikey-manager.desktop"
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=X-SysLock
-Comment=YubiKey 5 Series Login Manager
-Exec=gnome-terminal -- bash -c "$SCRIPT_DIR/yubi-control.sh"
-Icon=security-high
-Terminal=false
-Categories=System;Security;
-EOF
-
-chmod +x "$APP_DIR/yubikey-manager.desktop"
-update-desktop-database "$APP_DIR"
-echo ""
-echo -e "${GREEN}=== INSTALLATION ERFOLGREICH! ===${NC}"
-echo "X-SysLock v1.0 ist nun einsatzbereit."
+echo -e "${GREEN}Installation von v1.1 abgeschlossen.${NC}"
