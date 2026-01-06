@@ -69,6 +69,7 @@ Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-
 **Was mache ich, wenn ein Schluessel gestohlen wurde?**
 Kurzform: Loggen Sie sich mit Ihrem Backup-Key ein, oeffnen Sie den X-SysLock Manager und waehlen Sie "Kompletter Reset". Dadurch werden alle alten Keys (inklusive des gestohlenen) geloescht. Registrieren Sie danach Ihre vorhandenen Keys neu.
 
+Schritt für Schritt erklaert (ausfuehrlich):
 1. **Backup-Login:** Logge dich mit deinem Zweitschluessel ein.
 2. **Terminal-Absicherung:** Oeffne ein Terminal und tippe `sudo -v`. Solange dieses Terminal offen ist, behaeltst du meist fuer 15 Minuten Root-Rechte, selbst wenn du die Keys gerade bearbeitest.
 3. **Reset via Skript:** Starte das X-SysLock Menue und waehle Punkt 2 (Loeschen & Neu registrieren).
