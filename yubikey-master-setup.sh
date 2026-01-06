@@ -1,6 +1,7 @@
 #!/bin/bash
-# Project: X-SysLock v1.1 (Konsolidierte Fassung)
+# Project: X-SysLock v1.1 (Final Pro Version)
 # Repository: https://github.com/albertuszerk/yubicosyslock
+# Version: 1.1
 # License: CC BY-NC-SA 4.0
 
 BLUE='\033[0;34m'
@@ -8,11 +9,11 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# --- Interaktiver Start (aus v1.0) ---
+# --- Interaktiver Start ---
 clear
 echo -e "${BLUE}=== X-SysLock Installer v1.1 ===${NC}"
 echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
-echo "v1.1 Feature: Unterstuetzung fuer mehrere Backup-Keys."
+echo "v1.1 Feature: Unterstuetzung fuer mehrere Schluessel & visuelle Status-Anzeige."
 echo ""
 read -p "Moechten Sie die Installation von X-SysLock v1.1 jetzt starten? (j/n): " confirm
 if [[ ! $confirm =~ ^[Jj]$ ]]; then
@@ -31,19 +32,21 @@ sudo apt update && sudo apt install -y libpam-u2f pamu2fcfg yubikey-manager-qt z
 mkdir -p "$SCRIPT_DIR"
 mkdir -p "$HOME/.config/Yubico"
 
-# 2. Scripte schreiben (Konsolidierte Logik)
+# 2. Scripte schreiben
 echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 
-# --- Setup Script (Erweitert um Multi-Key Support) ---
+# --- Setup Script (Registrierungs-Logik) ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 KEY_FILE="$HOME/.config/Yubico/u2f_keys"
 mkdir -p "$HOME/.config/Yubico"
 
 clear
-echo -e "\033[0;34m=== YubiKey REGISTRIERUNG (X-SysLock v1.1) ===\033[0m"
+echo -e "\033[0;34m=== YubiKey BESTAETIGUNG (X-SysLock v1.1) ===\033[0m"
 echo ""
-echo "Hintergrund - Die 3 Standard-PINs eines YubiKeys:"
+echo "WICHTIG: Wenn Sie nach einer PIN gefragt werden, ist dies die FIDO2-PIN."
+echo ""
+echo "Die 3 Standard-PINs eines YubiKeys:"
 echo "1. FIDO2-PIN: (Standard: leer). Schuetzt den Login."
 echo "2. PIV-PIN:   (Standard: 123456). Fuer Zertifikate."
 echo "3. Admin-PIN: (Standard: 12345678). Hardware-Verwaltung."
@@ -54,13 +57,14 @@ if [ -f "$KEY_FILE" ] && [ -s "$KEY_FILE" ]; then
     echo "Modus: Weiteren Backup-Key hinzufuegen..."
     pamu2fcfg >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
 else
-    echo "Modus: Ersten Hauptschluessel registrieren..."
+    # Punkt 2: Optimierte Formulierung fuer den ersten Key / Reset
+    echo "Modus: Mit YubiKey anmelden / Ersten Key bestaetigen..."
     pamu2fcfg > "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
 fi
 
 chmod 600 "$KEY_FILE"
 
-# PAM-Integration mit Backup (Sicherheit aus v1.0)
+# PAM-Integration mit Backup-Schutz (Original bleibt erhalten)
 PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
 for FILE in "${PAM_FILES[@]}"; do
     if [ -f "$FILE" ] && ! sudo grep -q "pam_u2f.so" "$FILE"; then
@@ -68,10 +72,10 @@ for FILE in "${PAM_FILES[@]}"; do
         sudo sed -i '/@include common-auth/a auth required pam_u2f.so cue' "$FILE"
     fi
 done
-echo "ERFOLG: Schluessel registriert."; sleep 2
+echo "ERFOLG: Schluessel wurde registriert."; sleep 2
 EOF
 
-# --- Uninstall Script (aus v1.0 uebernommen) ---
+# --- Uninstall Script (Wiederherstellung der Backups) ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-uninstall.sh"
 #!/bin/bash
 PAM_FILES=("/etc/pam.d/gdm-password" "/etc/pam.d/sudo")
@@ -88,7 +92,7 @@ rm -rf "$HOME/.config/Yubico"
 echo "System bereinigt. X-SysLock wurde entfernt."; sleep 2
 EOF
 
-# --- GUI Control Script (v1.1 Zenity mit Status) ---
+# --- GUI Control Script (Zenity mit Pango-Farben & Punkt 1 Anpassung) ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
 KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
@@ -99,30 +103,36 @@ count_keys() {
 
 while true; do
     NUM=\$(count_keys)
-    STATUS="Status: \$NUM Schluessel registriert."
-    [ \$NUM -eq 1 ] && STATUS="! WARNUNG: Nur \$NUM Schluessel (Aussperrgefahr!)"
-    [ \$NUM -eq 0 ] && STATUS="KRITISCH: Kein Schluessel registriert!"
+    
+    # Punkt 1 & Design: Farbliche Status-Meldungen
+    if [ \$NUM -eq 0 ]; then
+        STATUS="<span color='red'><b>KRITISCH: Kein Schluessel registriert!</b></span>"
+    elif [ \$NUM -eq 1 ]; then
+        STATUS="<span color='orange'><b>! WARNUNG: Nur 1 Schluessel (Aussperrgefahr!)</b></span>"
+    else
+        STATUS="<span color='green'><b>! ERFOLG: Mind. \$NUM Schluessel wurden registriert.</b></span>"
+    fi
 
     CHOICE=\$(zenity --list --width=550 --height=450 \\
         --title="X-SysLock v1.1 - Management" \\
-        --text="\$STATUS\nBitte waehlen Sie eine Aktion:" \\
+        --text="\$STATUS\n\nBitte waehlen Sie eine Aktion aus:" \\
         --column="Aktion" --column="Beschreibung" \\
-        "Schluessel hinzufuegen" "Backup-Key registrieren (Empfohlen)" \\
-        "Kompletter Reset" "Alle Keys loeschen (Bei Diebstahl)" \\
-        "Editieren" "YubiKey Manager (PINs verwalten)" \\
+        "Schluessel hinzufuegen" "Einen weiteren Backup-Key registrieren" \\
+        "Kompletter Reset" "Alle Keys loeschen und neu anmelden" \\
+        "Editieren" "YubiKey Manager (PINs & Einstellungen)" \\
         "Deinstallieren" "System bereinigen & Tool entfernen" \\
         "Beenden" "Menue verlassen")
 
     case \$CHOICE in
         "Schluessel hinzufuegen") gnome-terminal --wait -- "$SCRIPT_DIR/yubi-setup.sh" ;;
         "Kompletter Reset")
-            if zenity --question --text="Moechten Sie alle Keys loeschen?"; then
+            if zenity --question --text="Moechten Sie wirklich ALLE registrierten Schluessel loeschen?"; then
                 rm -f "\$KEY_FILE"
                 gnome-terminal --wait -- "$SCRIPT_DIR/yubi-setup.sh"
             fi ;;
         "Editieren") ykman-gui ;;
         "Deinstallieren")
-            if zenity --question --text="X-SysLock komplett entfernen?"; then
+            if zenity --question --text="X-SysLock komplett entfernen und System-Originalzustand wiederherstellen?"; then
                 gnome-terminal --wait -- "$SCRIPT_DIR/yubi-uninstall.sh"
                 rm "$APP_DIR/yubikey-manager.desktop"
                 break
@@ -134,7 +144,7 @@ EOF
 
 chmod +x "$SCRIPT_DIR"/*.sh
 
-# 3. Menueeintrag (Desktop Entry aus v1.0)
+# 3. Menueeintrag (Desktop Entry)
 cat <<EOF > "$APP_DIR/yubikey-manager.desktop"
 [Desktop Entry]
 Version=1.1
