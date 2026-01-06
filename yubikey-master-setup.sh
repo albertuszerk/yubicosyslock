@@ -13,6 +13,7 @@ NC='\033[0m'
 clear
 echo -e "${BLUE}=== X-SysLock Installer v1.1 ===${NC}"
 echo "Dieses Script konfiguriert Ihren YubiKey fuer den Linux-Login."
+echo "v1.1 Feature: Korrekte Multi-Key Zaehlung & visuelle Status-Anzeige."
 echo ""
 read -p "Moechten Sie die Installation von X-SysLock v1.1 jetzt starten? (j/n): " confirm
 if [[ ! $confirm =~ ^[Jj]$ ]]; then
@@ -34,7 +35,7 @@ mkdir -p "$HOME/.config/Yubico"
 # 2. Scripte schreiben
 echo -e "${BLUE}[2/4] Konfiguriere System-Logik...${NC}"
 
-# --- Setup Script (Optimierte Schreib-Logik) ---
+# --- Setup Script (Optimierte Schreib-Logik fuer eine Zeile) ---
 cat <<'EOF' > "$SCRIPT_DIR/yubi-setup.sh"
 #!/bin/bash
 KEY_FILE="$HOME/.config/Yubico/u2f_keys"
@@ -43,20 +44,27 @@ mkdir -p "$HOME/.config/Yubico"
 clear
 echo -e "\033[0;34m=== YubiKey BESTAETIGUNG (X-SysLock v1.1) ===\033[0m"
 echo ""
-echo "Hintergrund - Die 3 Standard-PINs eines YubiKeys:"
+echo "Die 3 Standard-PINs eines YubiKeys:"
 echo "1. FIDO2-PIN: (Standard: leer). Schuetzt den Login."
 echo "2. PIV-PIN:   (Standard: 123456). Fuer Zertifikate."
 echo "3. Admin-PIN: (Standard: 12345678). Hardware-Verwaltung."
 echo "-------------------------------------------------------"
 echo ""
 
-# Wir nutzen nun immer das Standard-Format (eine Zeile pro Key)
 if [ -f "$KEY_FILE" ] && [ -s "$KEY_FILE" ]; then
     echo "Modus: Weiteren Backup-Key hinzufuegen..."
-    pamu2fcfg >> "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
+    # Wir holen nur die Key-Daten (ohne Username) und fuegen sie mit ":" an die Zeile an
+    NEW_KEY=$(pamu2fcfg -n | tr -d '\n')
+    if [ ! -z "$NEW_KEY" ]; then
+        sed -i "s/$/:$NEW_KEY/" "$KEY_FILE"
+        echo "Erfolg: Backup-Key zur bestehenden Zeile hinzugefuegt."
+    else
+        echo "Fehler bei der Registrierung!"; sleep 3; exit 1
+    fi
 else
     echo "Modus: Mit YubiKey anmelden / Ersten Key bestaetigen..."
-    pamu2fcfg > "$KEY_FILE" || { echo "Fehler!"; sleep 3; exit 1; }
+    pamu2fcfg | tr -d '\n' > "$KEY_FILE"
+    echo "" >> "$KEY_FILE"
 fi
 
 chmod 600 "$KEY_FILE"
@@ -89,15 +97,15 @@ rm -rf "$HOME/.config/Yubico"
 echo "System bereinigt. X-SysLock wurde entfernt."; sleep 2
 EOF
 
-# --- GUI Control Script (Korrigierte Zaehl-Logik) ---
+# --- GUI Control Script (Korrigierte Zaehl-Logik via Doppelpunkt) ---
 cat <<EOF > "$SCRIPT_DIR/yubi-control.sh"
 #!/bin/bash
 KEY_FILE="\$HOME/.config/Yubico/u2f_keys"
 
 count_keys() {
-    # Zaehlt nun einfach die Zeilen, da jeder Key eine eigene Zeile hat
+    # Zaehlt die Doppelpunkte in der Datei (1 ":" = 1 Key)
     if [ -f "\$KEY_FILE" ]; then
-        grep -c ":" "\$KEY_FILE"
+        grep -o ":" "\$KEY_FILE" | wc -l
     else
         echo 0
     fi
