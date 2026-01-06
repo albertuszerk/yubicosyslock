@@ -17,8 +17,8 @@ Dieses Tool wurde entwickelt, um den Login-Prozess physisch abzusichern – idea
 ### ⚠️ WICHTIGER SICHERHEITSHINWEIS (Disclaimer)
 Das Modifizieren von PAM (Pluggable Authentication Modules) kann bei Fehlkonfiguration dazu fuehren, dass Sie sich **komplett von Ihrem System aussperren**. 
 - Stellen Sie sicher, dass Sie ein aktuelles Backup Ihrer Daten haben.
-- Es wird dringend empfohlen, einen zweiten Administrator-Account ohne YubiKey-Pflicht als "Rettungsanker" bereit zu halten.
-- Die Nutzung erfolgt auf eigene Gefahr.
+- Einen zweiten Rettungsanker Administrator/User-Account wird nicht funktionieren, solange ein YubiKey aktiviert ist (s. FAQ)!
+- Die Nutzung von X-SysLock erfolgt auf eigene Gefahr.
 
 ---
 
@@ -62,6 +62,16 @@ Wenn X-SysLock waehrend der Registrierung nach einer PIN fragt, ist die **FIDO2-
 1. **FIDO2-PIN:** Wird fuer den System-Login genutzt (Standard: oft leer/nicht gesetzt).
 2. **PIV-PIN:** Fuer Smartcards/Zertifikate (Standard: 123456).
 3. **Admin-PIN:** Zur Hardware-Verwaltung (Standard: 12345678).
+
+## FAQ
+**Funktionieren mehrere Admin/User Accounts auf einem Linux System, solange ein YubiKey aktiviert ist?**
+Nein. Mit einer Ausnahme - ist Auto-Logon aktiv, wird man automatisch in dieses Zweit-Profil als User(!) eingeloggt. Achtung - es gibt nur noch einen (YubiKey based) Admin Account auf dem System!
+
+**Ich kann mich als Admin nicht einloggen, mein Passwort sei ungültig - ich bin sicher, mein Passwort richtig eingegeben zu haben!**
+Ihr YubiKey steckt nicht im USB Slot oder kann vom NFC Leser nicht gelesen werden. Linux macht Sie nicht darauf aufmerksam, dass ein YubiKey fehlt. Schliessen Sie ihren YubiKey an.
+
+**Funktioniert meine Admin/User Profile, sobald ich X-SysLock deinstalliert habe?**
+Ja.
 
 ## Deinstallation
 X-SysLock kann sauber ueber das eigene GUI-Menue entfernt werden. Es stellt die originalen PAM-Konfigurationen wieder her und loescht die Scripte sowie den Menue-Eintrag restlos.
