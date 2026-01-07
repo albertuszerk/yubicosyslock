@@ -107,7 +107,7 @@ while true; do
     NUM=\$(count_keys)
     if [ \$NUM -eq 0 ]; then STATUS="<span color='red'><b>KRITISCH: Kein Schluessel registriert!</b></span>"
     elif [ \$NUM -eq 1 ]; then STATUS="<span color='orange'><b>! WARNUNG: Nur 1 Schluessel (Aussperrgefahr!)</b></span>"
-    else STATUS="<span color='green'><b>! ERFOLG: Mind. \$NUM Schluessel wurden registriert.</b></span>"; fi
+    else STATUS="<span color='green'><b>! ERFOLG: Mind. 2 Schluessel wurden registriert.</b></span>"; fi
 
     CHOICE=\$(zenity --list --width=550 --height=450 --title="X-SysLock v1.1" --text="\$STATUS\n\nAuswahl:" \
         --column="Aktion" --column="Beschreibung" \
